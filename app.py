@@ -43,7 +43,7 @@ def welcome():
         f"If you want to know about Stations, click here:<br/>"
         f"<a href='/api/v1.0/stations' target='_blank'>/api/v1.0/stations</a><br />"
         f"<br/>"
-        f"If you want to know about Temperature Observation, click here:<br/>"
+        f"If you want to know about Temperature Observation of the most active station, click here:<br/>"
         f"<a href='/api/v1.0/tobs' target='_blank'>/api/v1.0/tobs</a><br />"
         f"<br/>"
         f"If you want to know about Minimum, Maximum and Average Temperatures a given start date, click here:<br/>"
@@ -58,7 +58,6 @@ def welcome():
 def precipitation():
 
     results = session.query(Measurement.date, Measurement.prcp).all()
-
     session.close()
 
     #Dictionary
@@ -71,13 +70,37 @@ def precipitation():
        
     return jsonify(precipitations)
 
+@app.route("/api/v1.0/stations")
+def stations():
 
+    results = session.query(Station.station,Station.name).all()
+    session.close()
 
+    #Dictionary
+    stations_list = []
+    for station, name in results:
+        station_dict = {}
+        station_dict["station"] = station
+        station_dict["name"] = name
+        stations_list.append(station_dict)
 
+    return jsonify(stations_list)
 
+@app.route("/api/v1.0/tobs")
+def tobs():
 
+    results = session.query(Measurement.date,Measurement.tobs).filter(Measurement.station == 'USC00519281').filter(Measurement.date >= '2016-08-23').all()
+    session.close()
 
+    #Dictionary
+    temperature = []
+    for date, tobs in results:
+        tobs_dict = {}
+        tobs_dict["date"] = date
+        tobs_dict["tobs"] = tobs
+        temperature.append(tobs_dict)
 
+    return jsonify(temperature)
 
 
 
