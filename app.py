@@ -102,10 +102,39 @@ def tobs():
 
     return jsonify(temperature)
 
+@app.route("/api/v1.0/<start>/")
+def get_start(start):
 
+    results = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(Measurement.date >= start).all()
+    session.close()
 
+    #Dictionary
+    temperature = []
+    for min_tobs, max_tobs, avg_tobs in results:
+        tobs_dict = {}
+        tobs_dict["Min Temp"] = min_tobs    
+        tobs_dict["Max Temp"] = max_tobs
+        tobs_dict["Avg Temp"] = avg_tobs
+        temperature.append(tobs_dict)
 
+    return jsonify(temperature)
 
+@app.route("/api/v1.0/<start>/<end>")
+def get_measurments_startend(start, end):
+
+    results = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(Measurement.date >= start).filter(Measurement.date <= end).all()
+    session.close()
+
+     #Dictionary
+    temperature = []
+    for min_tobs, max_tobs, avg_tobs in results:
+        tobs_dict = {}
+        tobs_dict["Min Temp"] = min_tobs    
+        tobs_dict["Max Temp"] = max_tobs
+        tobs_dict["Avg Temp"] = avg_tobs
+        temperature.append(tobs_dict)
+
+    return jsonify(temperature) 
 
 ######################################
 if __name__ == '__main__':
